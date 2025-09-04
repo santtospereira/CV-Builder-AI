@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+:root {
+  --cv-bg-color: #ffffff;
+  --cv-text-color: #374151;
+  --cv-header-bg-color: #f3f4f6;
+  --cv-header-text-color: #111827;
+  --cv-section-title-color: #374151;
+  --cv-border-color: #d1d5db;
+}
