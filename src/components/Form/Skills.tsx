@@ -33,7 +33,7 @@ const SkillsForm: React.FC<SkillsFormProps> = ({ skills, onAdd, onRemove, onUpda
           <button onClick={() => onRemove(skill.id)} className="rounded-md bg-red-500 px-3 py-2 text-white text-sm hover:bg-red-600">Remover</button>
         </div>
       ))}
-      <button onClick={onAdd} className="w-full rounded-md bg-green-500 py-2 text-white font-semibold hover:bg-green-600 transition-colors">Adicionar Habilidade</button>
+      <button onClick={onAdd} className="rounded-md bg-green-500 px-4 py-2 text-white font-semibold hover:bg-green-600 transition-colors">Adicionar Habilidade</button>
     </div>
   );
 };

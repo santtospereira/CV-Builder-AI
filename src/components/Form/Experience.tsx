@@ -55,7 +55,7 @@ const ExperienceForm: React.FC<ExperienceFormProps> = ({ experiences, onAdd, onR
           </div>
         </div>
       ))}
-      <button onClick={onAdd} className="w-full rounded-md bg-green-500 py-2 text-white font-semibold hover:bg-green-600 transition-colors">Adicionar Experiência</button>
+      <button onClick={onAdd} className="rounded-md bg-green-500 px-4 py-2 text-white font-semibold hover:bg-green-600 transition-colors">Adicionar Experiência</button>
     </div>
   );
 };
