@@ -13,7 +13,7 @@ const ThemeSwitcher: React.FC = () => {
           <button
             key={themeOption.name}
             onClick={() => setTheme(themeOption)}
-            className="px-3 py-1 text-sm font-medium text-white rounded-md transition-colors duration-200"
+            className={`px-3 py-1 text-sm font-medium ${themeOption.name === 'Classic' ? 'text-gray-800' : 'text-white'} rounded-md transition-colors duration-200 border border-gray-300`}
             style={{ backgroundColor: themeOption.colors['--cv-header-bg-color'] }}
             title={`Mudar para o tema ${themeOption.name}`}
           >
