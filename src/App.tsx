@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import FormSection from './components/Layout/FormSection';
 import PreviewSection from './components/Layout/PreviewSection';
 import Toast from './components/UI/Toast';
@@ -33,19 +33,13 @@ const App: React.FC = () => {
 
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);
-  const previewRef = useRef<HTMLDivElement>(null);
 
-  const handleExportPdf = useCallback(async (ref: React.RefObject<HTMLDivElement | null>, fileName: string) => {
-    if (!ref.current) {
-      showToast('Erro: A referência do preview não foi encontrada.', 'error');
-      return;
-    }
-
+  const handleExportPdf = useCallback(async (cvData: CVData, fileName: string) => {
     setIsExportingPdf(true);
     showToast('Gerando PDF...', 'info');
 
     try {
-      await exportToPdf(ref.current, fileName);
+      await exportToPdf(cvData, fileName);
       showToast('PDF gerado com sucesso!', 'success');
     } catch (error) {
       console.error(error);
@@ -58,11 +52,11 @@ const App: React.FC = () => {
   useKeyboardShortcuts({
     'control+p': (event) => {
       event.preventDefault();
-      handleExportPdf(previewRef, `CV_${cvData.name.replace(/\s+/g, '_') || 'Candidato'}`);
+      handleExportPdf(cvData, `CV_${cvData.name?.replace(/\s+/g, '_') || 'Candidato'}`);
     },
     'meta+p': (event) => {
       event.preventDefault();
-      handleExportPdf(previewRef, `CV_${cvData.name.replace(/\s+/g, '_') || 'Candidato'}`);
+      handleExportPdf(cvData, `CV_${cvData.name?.replace(/\s+/g, '_') || 'Candidato'}`);
     },
     'control+f': () => setIsFullScreenPreview(prev => !prev),
     'meta+f': () => setIsFullScreenPreview(prev => !prev),
@@ -131,7 +125,6 @@ const App: React.FC = () => {
             cvData={cvData} 
             onExportPdf={handleExportPdf} 
             isExportingPdf={isExportingPdf} 
-            previewRef={previewRef}
             className={isFullScreenPreview ? 'w-full' : 'w-1/2'} 
           />
         </main>

@@ -9,23 +9,22 @@ const SummarySection: React.FC<{ summary: string }> = ({ summary }) => {
     if (!summary) return null;
     return (
         <section className="mb-6">
-            <h2 className="text-2xl font-semibold text-[var(--cv-section-title-color)] border-b-2 border-[var(--cv-border-color)] pb-1">Resumo</h2>
-            <p className="mt-2 text-[var(--cv-text-color)] whitespace-pre-wrap">{summary}</p>
+            <h2 className="text-section-title font-semibold text-[var(--cv-section-title-color)] border-b-2 border-[var(--cv-border-color)] pb-1">Resumo</h2>
+            <p className="mt-2 text-body-md text-[var(--cv-text-color)] whitespace-pre-wrap">{summary}</p>
         </section>
     );
 };
 
 interface CVPreviewProps {
   cvData: CVData;
-  onExportPdf: (ref: React.RefObject<HTMLDivElement>, fileName: string) => Promise<void>;
+  onExportPdf: (cvData: CVData, fileName: string) => Promise<void>;
   isExportingPdf: boolean;
-  previewRef: React.RefObject<HTMLDivElement>; // Add this prop
 }
 
-const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingPdf, previewRef }) => { // Added previewRef
-  const fileName = `CV_${cvData.personalInfo?.name?.replace(/\s+/g, '_') || 'Candidato'}`;
+const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingPdf }) => { // Removed previewRef
+  const fileName = `CV_${cvData.name?.replace(/\s+/g, '_') || 'Candidato'}`;
 
-  const handleExport = () => onExportPdf(previewRef, fileName);
+  const handleExport = () => onExportPdf(cvData, fileName);
 
   return (
     <div className="relative"> 
@@ -33,7 +32,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingP
         <ExportButton onExport={handleExport} isLoading={isExportingPdf} />
       </div>
       
-      <div ref={previewRef} className="bg-[var(--cv-bg-color)] p-10 rounded-lg shadow-xl w-[700px] h-full overflow-y-auto">
+      <div className="bg-[var(--cv-bg-color)] px-10 py-5 rounded-lg shadow-md max-w-[800px] mx-auto h-full overflow-y-auto">
         <PersonalHeader data={cvData} />
         <SummarySection summary={cvData.summary} />
         <SkillsSection skills={cvData.skills} />

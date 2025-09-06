@@ -2,9 +2,24 @@
 
 :root {
   --cv-bg-color: #ffffff;
-  --cv-text-color: #374151;
+  --cv-text-color: #333333;
   --cv-header-bg-color: #f3f4f6;
   --cv-header-text-color: #111827;
   --cv-section-title-color: #374151;
   --cv-border-color: #d1d5db;
+}
+
+body {
+    background-color: #f4f4f4;
+}
+
+.custom-bullet::before {
+    content: "•";
+    color: #0056b3; /* customBlue */
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    position: absolute;
+    left: 0;
 }

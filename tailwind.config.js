@@ -120,8 +120,22 @@ export default {
         800: '#97266d',
         900: '#702459',
       },
+      customBlue: '#0056b3',
+      darkBlueGray: '#2c3e50',
+      mediumGray: '#555',
+      lightGray: '#777',
+      mediumLightGray: '#666',
     },
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Arial', 'Calibri', 'sans-serif'],
+      },
+      fontSize: {
+        'body-sm': ['0.6875rem', { lineHeight: '1rem' }], // 11px
+        'body-md': ['0.75rem', { lineHeight: '1rem' }],   // 12px
+        'section-title': ['0.875rem', { lineHeight: '1.25rem' }], // 14px
+      }
+    },
   },
   plugins: [],
   // Adicione esta linha para garantir a compatibilidade com a exportação para PDF
