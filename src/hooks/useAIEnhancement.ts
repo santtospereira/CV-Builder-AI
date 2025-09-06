@@ -11,6 +11,7 @@ export const useAIEnhancement = (
   const [enhancingId, setEnhancingId] = useState<string | null>(null);
 
   const handleEnhance = useCallback(async (field: 'summary' | 'experiences', id?: string) => {
+    console.log(`handleEnhance called with field: ${field}, id: ${id}`); // Adicionado para depuração
     setIsEnhancing(true);
     if (id) setEnhancingId(id);
     showToast('Processando melhoria com IA...', 'success');

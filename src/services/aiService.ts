@@ -25,6 +25,7 @@ export const enhanceTextWithAI = async (
   }
 
   const { text, context } = payload;
+  let lastError: Error | undefined;
 
   for (let i = 0; i < retries; i++) {
     try {
@@ -54,33 +55,47 @@ export const enhanceTextWithAI = async (
         }),
       });
 
-      if (!response.ok) {
-        // Para erros 5xx (server errors), vale a pena tentar novamente.
-        // Para erros 4xx (client errors), não, mas simplificamos aqui.
-        const errorData = await response.json();
-        console.error(`Erro na API da OpenAI (tentativa ${i + 1}/${retries}):`, errorData);
-        throw new Error(`Erro na API da OpenAI: ${response.statusText}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+          return data.choices[0].message.content.trim(); // Sucesso
+        }
+        lastError = new Error('A resposta da API da OpenAI não contém o formato esperado.');
+        break; // Não tente novamente para dados malformados
       }
 
-      const data = await response.json();
-      
-      if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-        return data.choices[0].message.content.trim(); // Sucesso, retorna o resultado
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('retry-after');
+        const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : delay * Math.pow(2, i);
+        lastError = new Error(`Você atingiu o limite de requisições da API. Tentando novamente em ${waitTime / 1000} segundos.`);
+        await new Promise(res => setTimeout(res, waitTime));
+        continue;
       }
 
-      throw new Error('A resposta da API da OpenAI não contém o formato esperado.');
-
-    } catch (error) {
-      console.error(`Falha ao chamar a API da OpenAI (tentativa ${i + 1}/${retries}):`, error);
-      if (i === retries - 1) {
-        // Se for a última tentativa, lança o erro para o chamador
-        throw error;
+      // Erros de cliente (4xx) que não devem ser repetidos (exceto 429)
+      if (response.status >= 400 && response.status < 500) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro de cliente na API da OpenAI (não haverá nova tentativa):', { status: response.status, data: errorData });
+        lastError = new Error(`Erro na API: ${response.statusText}`);
+        break; // Sai do loop
       }
-      // Espera antes de tentar novamente
-      await new Promise(res => setTimeout(res, delay));
+
+      // Para erros de servidor (5xx), ou outros, vamos tentar novamente.
+      const errorData = await response.json().catch(() => ({}));
+      lastError = new Error(`Erro na API: ${response.statusText}`);
+      console.error(`Erro na API da OpenAI (tentativa ${i + 1}/${retries}):`, { status: response.status, data: errorData });
+
+    } catch (error) { // Captura erros de rede (ex: falha no fetch)
+      lastError = error instanceof Error ? error : new Error('Ocorreu um erro de rede desconhecido');
+      console.error(`Falha de rede ao chamar a API da OpenAI (tentativa ${i + 1}/${retries}):`, error);
+    }
+
+    // Espera antes da próxima tentativa
+    if (i < retries - 1) {
+      await new Promise(res => setTimeout(res, delay * Math.pow(2, i))); // Backoff exponencial
     }
   }
 
-  // Se o loop terminar sem sucesso (improvável com o throw acima, mas para segurança do TS)
-  throw new Error('Falha ao obter resposta da API da OpenAI após múltiplas tentativas.');
+  // Se o loop terminar, lança o último erro que ocorreu.
+  throw lastError ?? new Error('Falha ao obter resposta da API da OpenAI após múltiplas tentativas.');
 };
