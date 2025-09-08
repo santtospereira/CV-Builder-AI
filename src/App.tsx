@@ -9,7 +9,6 @@ import { useAIEnhancement } from './hooks/useAIEnhancement';
 import { useToast } from './hooks/useToast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { exportToPdf } from './services/pdfService';
-import { useCVHistory } from './hooks/useCVHistory';
 import { CVData } from './types/cv.types';
 
 const App: React.FC = () => {
@@ -26,11 +25,13 @@ const App: React.FC = () => {
     deleteCV,
     savedCVs,
     currentCVName,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   } = useCVData();
   
   const ai = useAIEnhancement(cvData, setCVDataDirectly, showToast);
-
-  const { undo, redo, canUndo, canRedo } = useCVHistory(cvData, setCVDataDirectly);
 
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);

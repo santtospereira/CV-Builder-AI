@@ -40,6 +40,14 @@ export const useCVData = () => {
   const [cvData, setCvData] = useState<CVData>(initialCVData);
   const [currentCVName, setCurrentCVName] = useState<string | null>(null);
   const [savedCVs, setSavedCVs] = useState<string[]>([]);
+  const [history, setHistory] = useState<CVData[]>([initialCVData]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const recordChange = useCallback((newData: CVData) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    setHistory([...newHistory, newData]);
+    setHistoryIndex(newHistory.length);
+  }, [history, historyIndex]);
 
   // Load initial CV data and names on mount
   useEffect(() => {
@@ -98,6 +106,8 @@ export const useCVData = () => {
         setCvData(mergedData);
         setCurrentCVName(name);
         localStorage.setItem(CURRENT_CV_KEY, name);
+        setHistory([mergedData]);
+        setHistoryIndex(0);
       } else {
         console.warn(`CV '${name}' not found in localStorage.`);
       }
@@ -120,6 +130,8 @@ export const useCVData = () => {
           setCvData(initialCVData);
           setCurrentCVName(null);
           localStorage.removeItem(CURRENT_CV_KEY);
+          setHistory([initialCVData]);
+          setHistoryIndex(0);
         }
       }
     } catch (error) {
@@ -129,57 +141,55 @@ export const useCVData = () => {
 
   const handleDataChange = useCallback((key: keyof PersonalInfo | 'summary', value: string) => {
     setCvData(prevData => {
-      if (key === 'summary') {
-        return {
-          ...prevData,
-          summary: value,
-        };
-      }
-      
-      // Type guard to ensure key is in PersonalInfo
-      if (key in prevData.personalInfo) {
-        return {
-          ...prevData,
-          personalInfo: {
-            ...prevData.personalInfo,
-            [key]: value,
-          },
-        };
-      }
-
-      return prevData;
+      const newData = {
+        ...prevData,
+        ...(key === 'summary' ? { summary: value } : { personalInfo: { ...prevData.personalInfo, [key]: value } })
+      };
+      recordChange(newData);
+      return newData;
     });
-  }, []);
+  }, [recordChange]);
 
   const handleListChange = useCallback((listName: 'skills' | 'experiences', id: string, key: string, value: string | boolean) => {
     setCvData(prevData => {
       const list = (prevData[listName] as Array<any>).map(item =>
         item.id === id ? { ...item, [key]: value } : item
       );
-      return { ...prevData, [listName]: list as any };
+      const newData = { ...prevData, [listName]: list as any };
+      recordChange(newData);
+      return newData;
     });
-  }, []);
+  }, [recordChange]);
 
   const handleAddListItem = useCallback((listName: 'skills' | 'experiences') => {
     const newItem = listName === 'skills'
       ? { id: crypto.randomUUID(), name: '', level: 'Básico' as SkillLevel }
       : { id: crypto.randomUUID(), company: '', position: '', period: '', description: '', isCurrent: false };
     
-    setCvData(prevData => ({
-      ...prevData,
-      [listName]: [...prevData[listName] as Array<any>, newItem] as any,
-    }));
-  }, []);
+    setCvData(prevData => {
+      const newData = {
+        ...prevData,
+        [listName]: [...prevData[listName] as Array<any>, newItem] as any,
+      };
+      recordChange(newData);
+      return newData;
+    });
+  }, [recordChange]);
 
   const handleRemoveListItem = useCallback((listName: 'skills' | 'experiences', id: string) => {
-    setCvData(prevData => ({
-      ...prevData,
-      [listName]: (prevData[listName] as Array<any>).filter(item => item.id !== id) as any,
-    }));
-  }, []);
+    setCvData(prevData => {
+      const newData = {
+        ...prevData,
+        [listName]: (prevData[listName] as Array<any>).filter(item => item.id !== id) as any,
+      };
+      recordChange(newData);
+      return newData;
+    });
+  }, [recordChange]);
   
   const setCVDataDirectly = useCallback((data: CVData) => {
       setCvData(data);
+      recordChange(data);
       // When setting directly, we assume it's a new or loaded CV, so update current name
       if (data.personalInfo.name && !savedCVs.includes(data.personalInfo.name)) {
         setCurrentCVName(data.personalInfo.name);
@@ -191,7 +201,26 @@ export const useCVData = () => {
         setCurrentCVName(null);
         localStorage.removeItem(CURRENT_CV_KEY);
       }
-  }, [savedCVs]);
+  }, [savedCVs, recordChange]);
+
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setCvData(history[newIndex]);
+    }
+  }, [history, historyIndex]);
+
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setCvData(history[newIndex]);
+    }
+  }, [history, historyIndex]);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
 
   return {
     cvData,
@@ -205,5 +234,9 @@ export const useCVData = () => {
     deleteCV,
     savedCVs,
     currentCVName,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
   };
 };

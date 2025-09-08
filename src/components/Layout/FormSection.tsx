@@ -15,7 +15,7 @@ interface FormSectionProps {
     ai: {
         isEnhancing: boolean;
         enhancingId: string | null;
-        handleEnhance: (field: 'summary' | 'experiences', id?: string) => Promise<void>;
+        handleEnhance: (textToEnhance: string, context: 'summary' | 'experience', id?: string) => Promise<void>;
     };
     setCVDataDirectly: (data: CVData) => void;
     saveCV: (name: string) => void; // New prop
@@ -199,7 +199,7 @@ const FormSection: React.FC<FormSectionProps> = ({
         <SummaryForm
           cvData={cvData}
           onUpdate={(value) => handleDataChange('summary', value)}
-          onEnhance={() => ai.handleEnhance('summary')}
+          onEnhance={() => ai.handleEnhance(cvData.summary, 'summary')}
           isEnhancing={ai.isEnhancing && ai.enhancingId === null}
         />
         <SkillsForm
@@ -213,7 +213,7 @@ const FormSection: React.FC<FormSectionProps> = ({
           onAdd={() => handleAddListItem('experiences')}
           onRemove={(id) => handleRemoveListItem('experiences', id)}
           onUpdate={(id, key, value) => handleListChange('experiences', id, key, value)}
-          onEnhance={(id) => ai.handleEnhance('experiences', id)}
+          onEnhance={(id, description) => ai.handleEnhance(description, 'experience', id)}
           isEnhancing={ai.isEnhancing}
           enhancingId={ai.enhancingId}
         />

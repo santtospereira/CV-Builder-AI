@@ -28,12 +28,12 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences }) =>
 
   return (
     <section className="mb-5">
-      <h2 className="text-section-title font-semibold text-customBlue border-b border-gray-300 pb-1.5 mb-4">Experiência Profissional</h2>
+      <h2 className="text-section-title font-semibold text-[var(--cv-section-title-color)] border-b border-[var(--cv-border-color)] pb-1.5 mb-4">Experiência Profissional</h2>
       <div className="mt-4 space-y-6">
         {experiences.map((exp, index) => (
           <div key={index} className="space-y-1">
-            <h3 className="text-[1.1em] font-bold italic text-[#333]">{exp.position || 'Cargo'} em {exp.company || 'Empresa'}</h3>
-            <p className="text-[0.9em] text-mediumLightGray mb-1.5">{exp.period || 'Período'}</p>
+            <h3 className="text-[1.1em] font-bold italic text-[var(--cv-text-color)]">{exp.position || 'Cargo'} em {exp.company || 'Empresa'}</h3>
+            <p className="text-[0.9em] text-[var(--cv-text-color)] mb-1.5">{exp.period || 'Período'}</p>
             {renderDescription(exp.description || 'Descrição da experiência')}
           </div>
         ))}
