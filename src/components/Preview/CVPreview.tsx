@@ -22,7 +22,7 @@ interface CVPreviewProps {
 }
 
 const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingPdf }) => { // Removed previewRef
-  const fileName = `CV_${cvData.name?.replace(/\s+/g, '_') || 'Candidato'}`;
+  const fileName = `CV_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'Candidato'}`;
 
   const handleExport = () => onExportPdf(cvData, fileName);
 

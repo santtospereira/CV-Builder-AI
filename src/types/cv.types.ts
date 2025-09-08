@@ -15,11 +15,15 @@ export interface Experience {
   isCurrent: boolean;
 }
 
-export interface CVData {
+export interface PersonalInfo {
   name: string;
   email: string;
   phone: string;
   linkedin: string;
+}
+
+export interface CVData {
+  personalInfo: PersonalInfo;
   summary: string;
   skills: Skill[];
   experiences: Experience[];

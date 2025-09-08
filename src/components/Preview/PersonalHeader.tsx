@@ -6,7 +6,7 @@ interface PersonalHeaderProps {
 }
 
 const PersonalHeader: React.FC<PersonalHeaderProps> = ({ data }) => {
-  const { name, email, phone, linkedin } = data;
+  const { name, email, phone, linkedin } = data.personalInfo;
 
   return (
     <header className="text-center mb-5 pb-2.5 border-b-2 border-customBlue">

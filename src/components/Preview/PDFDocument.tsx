@@ -7,8 +7,8 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 25, // Corresponds to 2.5cm margin
-    fontFamily: 'Helvetica', // Default font
+    padding: 25,
+    fontFamily: 'Helvetica',
   },
   section: {
     marginBottom: 20,
@@ -22,37 +22,33 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   h3: {
-    fontSize: 17.6, // Corresponds to 1.1em
+    fontSize: 17.6,
     fontWeight: 'bold',
     color: '#333',
   },
   jobPeriod: {
     fontStyle: 'italic',
-    fontSize: 14.4, // Corresponds to 0.9em
+    fontSize: 14.4,
     color: '#666',
     marginBottom: 5,
   },
   text: {
-    fontSize: 12, // Corresponds to 12pt body-md
+    fontSize: 12,
     color: '#333',
     lineHeight: 1.6,
   },
   bulletList: {
-    listStyleType: 'none',
     padding: 0,
   },
   bulletItem: {
     marginBottom: 5,
-    paddingLeft: 20,
-    position: 'relative',
+    flexDirection: 'row',
   },
   bullet: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
     fontSize: 12,
     color: '#0056b3',
     fontWeight: 'bold',
+    marginRight: 5,
   },
 });
 
@@ -101,19 +97,12 @@ const PDFDocument: React.FC<PDFDocumentProps> = ({ cvData }) => (
             <View key={index} style={{ marginBottom: 10 }}>
               <Text style={styles.h3}>{exp.position || 'Cargo'} em {exp.company || 'Empresa'}</Text>
               <Text style={styles.jobPeriod}>{exp.period || 'Período'}</Text>
-              {/* Description with bullet points */}
-              {exp.description && exp.description.split('\n').filter(line => line.trim() !== '').some(line => line.trim().startsWith('- ') || line.trim().startsWith('* ')) ? (
-                <View style={styles.bulletList}>
-                  {exp.description.split('\n').filter(line => line.trim() !== '').map((line, idx) => (
-                    <View key={idx} style={styles.bulletItem}>
-                      <Text style={styles.bullet}>•</Text>
-                      <Text style={{ ...styles.text, marginLeft: 15 }}>{line.replace(/^(-|\*)\s*/, '')}</Text>
-                    </View>
-                  ))}
+              {exp.description && exp.description.split('\n').filter(line => line.trim() !== '').map((line, idx) => (
+                <View key={idx} style={styles.bulletItem}>
+                  <Text style={styles.bullet}>•</Text>
+                  <Text style={styles.text}>{line.replace(/^(-|\*)\s*/, '')}</Text>
                 </View>
-              ) : (
-                <Text style={styles.text}>{exp.description || 'Descrição da experiência'}</Text>
-              )}
+              ))}
             </View>
           ))}
         </View>

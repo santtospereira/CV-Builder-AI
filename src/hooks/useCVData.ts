@@ -1,14 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
-import { CVData, Skill, Experience, SkillLevel } from '../types/cv.types';
+import { CVData, Skill, Experience, SkillLevel, PersonalInfo } from '../types/cv.types';
 
 const CV_NAMES_KEY = 'cvBuilderNames';
 const CURRENT_CV_KEY = 'currentCVName'; // To remember which CV was last loaded
 
 const initialCVData: CVData = {
-  name: '',
-  email: '',
-  phone: '',
-  linkedin: '',
+  personalInfo: {
+    name: '',
+    email: '',
+    phone: '',
+    linkedin: '',
+  },
   summary: '',
   skills: [],
   experiences: [],
@@ -79,7 +81,21 @@ export const useCVData = () => {
     try {
       const storedData = localStorage.getItem(`cvBuilderData_${name}`);
       if (storedData) {
-        setCvData(JSON.parse(storedData));
+        const parsedData = JSON.parse(storedData);
+        
+        // Merge with initial data to ensure all fields are present
+        const mergedData: CVData = {
+          ...initialCVData,
+          ...parsedData,
+          personalInfo: {
+            ...initialCVData.personalInfo,
+            ...(parsedData.personalInfo || {}),
+          },
+          skills: parsedData.skills || [],
+          experiences: parsedData.experiences || [],
+        };
+
+        setCvData(mergedData);
         setCurrentCVName(name);
         localStorage.setItem(CURRENT_CV_KEY, name);
       } else {
@@ -111,11 +127,28 @@ export const useCVData = () => {
     }
   }, [savedCVs, currentCVName, loadCV]);
 
-  const handleDataChange = useCallback((key: keyof CVData, value: string) => {
-    setCvData(prevData => ({
-      ...prevData,
-      [key]: value
-    }));
+  const handleDataChange = useCallback((key: keyof PersonalInfo | 'summary', value: string) => {
+    setCvData(prevData => {
+      if (key === 'summary') {
+        return {
+          ...prevData,
+          summary: value,
+        };
+      }
+      
+      // Type guard to ensure key is in PersonalInfo
+      if (key in prevData.personalInfo) {
+        return {
+          ...prevData,
+          personalInfo: {
+            ...prevData.personalInfo,
+            [key]: value,
+          },
+        };
+      }
+
+      return prevData;
+    });
   }, []);
 
   const handleListChange = useCallback((listName: 'skills' | 'experiences', id: string, key: string, value: string | boolean) => {
@@ -148,12 +181,12 @@ export const useCVData = () => {
   const setCVDataDirectly = useCallback((data: CVData) => {
       setCvData(data);
       // When setting directly, we assume it's a new or loaded CV, so update current name
-      if (data.name && !savedCVs.includes(data.name)) {
-        setCurrentCVName(data.name);
-        localStorage.setItem(CURRENT_CV_KEY, data.name);
-      } else if (data.name && savedCVs.includes(data.name)) {
-        setCurrentCVName(data.name);
-        localStorage.setItem(CURRENT_CV_KEY, data.name);
+      if (data.personalInfo.name && !savedCVs.includes(data.personalInfo.name)) {
+        setCurrentCVName(data.personalInfo.name);
+        localStorage.setItem(CURRENT_CV_KEY, data.personalInfo.name);
+      } else if (data.personalInfo.name && savedCVs.includes(data.personalInfo.name)) {
+        setCurrentCVName(data.personalInfo.name);
+        localStorage.setItem(CURRENT_CV_KEY, data.personalInfo.name);
       } else {
         setCurrentCVName(null);
         localStorage.removeItem(CURRENT_CV_KEY);

@@ -28,11 +28,11 @@ export const themes: Theme[] = [
     name: 'Modern',
     colors: {
       '--cv-bg-color': '#ffffff',
-      '--cv-text-color': '#2d3748', // gray-800
-      '--cv-header-bg-color': '#2d3748', // gray-800
+      '--cv-text-color': '#1A202C', // gray-900
+      '--cv-header-bg-color': '#2B6CB0', // blue-600
       '--cv-header-text-color': '#ffffff',
-      '--cv-section-title-color': '#2c5282', // blue-800
-      '--cv-border-color': '#e2e8f0', // gray-200
+      '--cv-section-title-color': '#2C5282', // blue-800
+      '--cv-border-color': '#E2E8F0', // gray-200
     },
   },
   {

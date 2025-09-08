@@ -3,12 +3,12 @@ import PersonalInfoForm from '../Form/PersonalInfo';
 import SummaryForm from '../Form/SummaryForm';
 import SkillsForm from '../Form/Skills';
 import ExperienceForm from '../Form/Experience';
-import { CVData } from '../../types/cv.types';
+import { CVData, PersonalInfo } from '../../types/cv.types';
 import { useToast } from '../../hooks/useToast'; // Import useToast
 
 interface FormSectionProps {
     cvData: CVData;
-    handleDataChange: (key: keyof CVData, value: string) => void;
+        handleDataChange: (key: keyof PersonalInfo | 'summary', value: string) => void;
     handleListChange: (listName: 'skills' | 'experiences', id: string, key: string, value: string | boolean) => void;
     handleAddListItem: (listName: 'skills' | 'experiences') => void;
     handleRemoveListItem: (listName: 'skills' | 'experiences', id: string) => void;
@@ -50,7 +50,7 @@ const FormSection: React.FC<FormSectionProps> = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `cv_data_${cvData.name.replace(/\s+/g, '_') || 'untitled'}.json`;
+      a.download = `cv_data_${cvData.personalInfo.name.replace(/\s+/g, '_') || 'untitled'}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -69,7 +69,7 @@ const FormSection: React.FC<FormSectionProps> = ({
       reader.onload = (e) => {
         try {
           const importedData: CVData = JSON.parse(e.target?.result as string);
-          if (importedData && importedData.name !== undefined && importedData.skills !== undefined) {
+          if (importedData && importedData.personalInfo && importedData.personalInfo.name !== undefined && importedData.skills !== undefined) {
             setCVDataDirectly(importedData);
             showToast('Dados do CV importados com sucesso!', 'success');
           } else {
@@ -87,7 +87,10 @@ const FormSection: React.FC<FormSectionProps> = ({
   const handleNewCV = () => {
     if (window.confirm('Tem certeza que deseja criar um novo CV? As alterações não salvas serão perdidas.')) {
       setCVDataDirectly({
-        name: '', email: '', phone: '', linkedin: '', summary: '', skills: [], experiences: []
+        personalInfo: { name: '', email: '', phone: '', linkedin: '' },
+        summary: '',
+        skills: [],
+        experiences: [],
       });
       showToast('Novo CV criado!', 'info');
     }
@@ -192,7 +195,7 @@ const FormSection: React.FC<FormSectionProps> = ({
       )}
 
       <div className="space-y-8">
-        <PersonalInfoForm cvData={cvData} onUpdate={handleDataChange} />
+        <PersonalInfoForm personalInfo={cvData.personalInfo} onUpdate={handleDataChange} />
         <SummaryForm
           cvData={cvData}
           onUpdate={(value) => handleDataChange('summary', value)}

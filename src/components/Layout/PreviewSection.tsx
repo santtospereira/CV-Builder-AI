@@ -4,16 +4,15 @@ import { CVData } from '../../types/cv.types';
 
 interface PreviewSectionProps {
   cvData: CVData;
-  onExportPdf: (ref: React.RefObject<HTMLDivElement>, fileName: string) => Promise<void>;
+  onExportPdf: (cvData: CVData, fileName: string) => Promise<void>;
   isExportingPdf: boolean;
-  previewRef: React.RefObject<HTMLDivElement | null>;
-  className?: string; // Add this prop
+  className?: string;
 }
 
-const PreviewSection: React.FC<PreviewSectionProps> = ({ cvData, onExportPdf, isExportingPdf, previewRef, className }) => {
+const PreviewSection: React.FC<PreviewSectionProps> = ({ cvData, onExportPdf, isExportingPdf, className }) => {
   return (
     <div className={`p-8 overflow-y-auto bg-gray-200 flex justify-center items-start ${className}`}>
-      <CVPreview cvData={cvData} onExportPdf={onExportPdf} isExportingPdf={isExportingPdf} previewRef={previewRef} />
+      <CVPreview cvData={cvData} onExportPdf={onExportPdf} isExportingPdf={isExportingPdf} />
     </div>
   );
 };

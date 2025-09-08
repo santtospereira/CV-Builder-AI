@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import FormSection from './components/Layout/FormSection';
 import PreviewSection from './components/Layout/PreviewSection';
 import Toast from './components/UI/Toast';
@@ -10,6 +10,7 @@ import { useToast } from './hooks/useToast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { exportToPdf } from './services/pdfService';
 import { useCVHistory } from './hooks/useCVHistory';
+import { CVData } from './types/cv.types';
 
 const App: React.FC = () => {
   const { toast, showToast } = useToast();
@@ -33,30 +34,51 @@ const App: React.FC = () => {
 
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);
+  const [exportRequest, setExportRequest] = useState<{ data: CVData; fileName: string } | null>(null);
 
-  const handleExportPdf = useCallback(async (cvData: CVData, fileName: string) => {
-    setIsExportingPdf(true);
-    showToast('Gerando PDF...', 'info');
-
-    try {
-      await exportToPdf(cvData, fileName);
-      showToast('PDF gerado com sucesso!', 'success');
-    } catch (error) {
-      console.error(error);
-      showToast('Falha ao gerar o PDF.', 'error');
-    } finally {
-      setIsExportingPdf(false);
+  // Função para solicitar a exportação, apenas define o estado
+  const requestExport = async (data: CVData, fileName: string) => {
+    if (!isExportingPdf) {
+      setExportRequest({ data, fileName });
     }
-  }, [showToast]);
+  };
+
+  // useEffect para lidar com a exportação quando o estado de requisição muda
+  useEffect(() => {
+    if (exportRequest) {
+      const { data, fileName } = exportRequest;
+      
+      setIsExportingPdf(true);
+      showToast('Gerando PDF...', 'info');
+
+      // Usamos um timeout para garantir que o DOM foi atualizado
+      const timer = setTimeout(() => {
+        exportToPdf(data, fileName)
+          .then(() => {
+            showToast('PDF gerado com sucesso!', 'success');
+          })
+          .catch((error) => {
+            console.error(error);
+            showToast('Falha ao gerar o PDF.', 'error');
+          })
+          .finally(() => {
+            setIsExportingPdf(false);
+            setExportRequest(null); // Limpa a requisição
+          });
+      }, 100); // Um pequeno delay de 100ms é geralmente suficiente
+
+      return () => clearTimeout(timer);
+    }
+  }, [exportRequest, showToast]);
 
   useKeyboardShortcuts({
     'control+p': (event) => {
       event.preventDefault();
-      handleExportPdf(cvData, `CV_${cvData.name?.replace(/\s+/g, '_') || 'Candidato'}`);
+      requestExport(cvData, `CV_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'Candidato'}`);
     },
     'meta+p': (event) => {
       event.preventDefault();
-      handleExportPdf(cvData, `CV_${cvData.name?.replace(/\s+/g, '_') || 'Candidato'}`);
+      requestExport(cvData, `CV_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'Candidato'}`);
     },
     'control+f': () => setIsFullScreenPreview(prev => !prev),
     'meta+f': () => setIsFullScreenPreview(prev => !prev),
@@ -123,7 +145,7 @@ const App: React.FC = () => {
           )}
           <PreviewSection 
             cvData={cvData} 
-            onExportPdf={handleExportPdf} 
+            onExportPdf={requestExport} 
             isExportingPdf={isExportingPdf} 
             className={isFullScreenPreview ? 'w-full' : 'w-1/2'} 
           />
