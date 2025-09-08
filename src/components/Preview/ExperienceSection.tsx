@@ -14,26 +14,26 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences }) =>
 
     if (isBulletList) {
       return (
-        <ul className="list-none p-0">
+        <ul className="list-none p-0 mt-2">
           {lines.map((line, idx) => (
-            <li key={idx} className="mb-1.5 pl-5 relative custom-bullet text-body-md text-[var(--cv-text-color)]">
+            <li key={idx} className="mb-1 pl-5 relative custom-bullet text-base text-[var(--cv-text-color)]">
               {line.replace(/^(-|\*)\s*/, '')}
             </li>
           ))}
         </ul>
       );
     }
-    return <p className="text-body-md text-[var(--cv-text-color)] whitespace-pre-wrap">{description}</p>;
+    return <p className="text-base text-[var(--cv-text-color)] whitespace-pre-wrap mt-2">{description}</p>;
   };
 
   return (
-    <section className="mb-5">
-      <h2 className="text-section-title font-semibold text-[var(--cv-section-title-color)] border-b border-[var(--cv-border-color)] pb-1.5 mb-4">Experiência Profissional</h2>
-      <div className="mt-4 space-y-6">
+    <section className="mb-8">
+      <h2 className="text-2xl font-bold text-[var(--cv-section-title-color)] border-b-2 border-[var(--cv-border-color)] pb-2 mb-4">Experiência Profissional</h2>
+      <div className="space-y-6">
         {experiences.map((exp, index) => (
-          <div key={index} className="space-y-1">
-            <h3 className="text-[1.1em] font-bold italic text-[var(--cv-text-color)]">{exp.position || 'Cargo'} em {exp.company || 'Empresa'}</h3>
-            <p className="text-[0.9em] text-[var(--cv-text-color)] mb-1.5">{exp.period || 'Período'}</p>
+          <div key={index}> 
+            <h3 className="text-lg font-semibold text-[var(--cv-text-color)]">{exp.position || 'Cargo'}</h3>
+            <p className="text-sm text-gray-600">{exp.company || 'Empresa'} | {exp.period || 'Período'}</p>
             {renderDescription(exp.description || 'Descrição da experiência')}
           </div>
         ))}

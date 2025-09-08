@@ -9,12 +9,13 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
   if (skills.length === 0) return null;
 
   return (
-    <section className="mb-5">
-      <h2 className="text-section-title font-semibold text-[var(--cv-section-title-color)] border-b border-[var(--cv-border-color)] pb-1.5 mb-4">Habilidades</h2>
-      <ul className="mt-0 grid grid-cols-2 gap-2">
+    <section className="mb-8">
+      <h2 className="text-2xl font-bold text-[var(--cv-section-title-color)] border-b-2 border-[var(--cv-border-color)] pb-2 mb-4">Habilidades</h2>
+      <ul className="columns-2 gap-x-8">
         {skills.map((skill, index) => (
-          <li key={index} className="text-body-md text-[var(--cv-text-color)] mb-1.5 pl-5 relative custom-bullet">
-            <span className="font-medium">{skill.name}</span>: {skill.level}
+          <li key={index} className="text-base text-[var(--cv-text-color)] mb-2 break-inside-avoid">
+            <span className="font-semibold">{skill.name}</span>
+            {skill.level && <span className="text-gray-600"> - {skill.level}</span>}
           </li>
         ))}
       </ul>

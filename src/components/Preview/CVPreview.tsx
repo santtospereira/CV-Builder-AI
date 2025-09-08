@@ -1,4 +1,4 @@
-import React from 'react'; // Removed useRef
+import React from 'react';
 import { CVData } from '../../types/cv.types';
 import PersonalHeader from './PersonalHeader';
 import SkillsSection from './SkillsSection';
@@ -8,9 +8,9 @@ import ExportButton from './ExportButton';
 const SummarySection: React.FC<{ summary: string }> = ({ summary }) => {
     if (!summary) return null;
     return (
-        <section className="mb-6">
-            <h2 className="text-section-title font-semibold text-[var(--cv-section-title-color)] border-b-2 border-[var(--cv-border-color)] pb-1">Resumo</h2>
-            <p className="mt-2 text-body-md text-[var(--cv-text-color)] whitespace-pre-wrap">{summary}</p>
+        <section className="mb-8">
+            <h2 className="text-2xl font-bold text-[var(--cv-section-title-color)] border-b-2 border-[var(--cv-border-color)] pb-2 mb-4">Resumo</h2>
+            <p className="text-base text-[var(--cv-text-color)] whitespace-pre-wrap">{summary}</p>
         </section>
     );
 };
@@ -21,7 +21,7 @@ interface CVPreviewProps {
   isExportingPdf: boolean;
 }
 
-const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingPdf }) => { // Removed previewRef
+const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingPdf }) => {
   const fileName = `CV_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'Candidato'}`;
 
   const handleExport = () => onExportPdf(cvData, fileName);
@@ -32,11 +32,13 @@ const CVPreview: React.FC<CVPreviewProps> = ({ cvData, onExportPdf, isExportingP
         <ExportButton onExport={handleExport} isLoading={isExportingPdf} />
       </div>
       
-      <div className="bg-[var(--cv-bg-color)] px-10 py-5 rounded-lg shadow-md max-w-[800px] mx-auto h-full overflow-y-auto">
+      <div className="bg-[var(--cv-bg-color)] rounded-lg shadow-lg max-w-4xl mx-auto h-full overflow-y-auto">
         <PersonalHeader data={cvData} />
-        <SummarySection summary={cvData.summary} />
-        <SkillsSection skills={cvData.skills} />
-        <ExperienceSection experiences={cvData.experiences} />
+        <main className="p-10">
+          <SummarySection summary={cvData.summary} />
+          <SkillsSection skills={cvData.skills} />
+          <ExperienceSection experiences={cvData.experiences} />
+        </main>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ body {
 
 .custom-bullet::before {
     content: "•";
-    color: #0056b3; /* customBlue */
+    color: var(--cv-section-title-color);
     font-weight: bold;
     display: inline-block;
     width: 1em;

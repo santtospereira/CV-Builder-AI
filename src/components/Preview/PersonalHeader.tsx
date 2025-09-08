@@ -9,16 +9,20 @@ const PersonalHeader: React.FC<PersonalHeaderProps> = ({ data }) => {
   const { name, email, phone, linkedin } = data.personalInfo;
 
   return (
-    <header className="text-center mb-5 pb-2.5 border-b-2 border-[var(--cv-border-color)]">
-      <h1 className="text-[2.5em] font-extrabold text-[var(--cv-header-text-color)]">{name || 'Nome Completo'}</h1>
-      <div className="text-[1.2em] font-normal mt-2 text-[var(--cv-text-color)]">
+    <header className="bg-[var(--cv-header-bg-color)] text-[var(--cv-header-text-color)] text-center p-8 rounded-t-lg">
+      <h1 className="text-4xl font-bold">{name || 'Nome Completo'}</h1>
+      <div className="flex justify-center items-center space-x-4 mt-3 text-sm">
         <span>{email || 'email@exemplo.com'}</span>
-        <span className="mx-2">|</span>
+        <span>&bull;</span>
         <span>{phone || '(11) 98765-4321'}</span>
-        <span className="mx-2">|</span>
-        <a href={linkedin} target="_blank" rel="noopener noreferrer" className="text-[var(--cv-section-title-color)] no-underline hover:underline">
-          {linkedin || 'linkedin.com/in/seu-perfil'}
-        </a>
+        {linkedin && (
+          <>
+            <span>&bull;</span>
+            <a href={linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline">
+              {linkedin.replace(/^(https?:\/\/)?(www\.)?/, '')}
+            </a>
+          </>
+        )}
       </div>
     </header>
   );
