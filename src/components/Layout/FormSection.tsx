@@ -5,6 +5,9 @@ import SkillsForm from '../Form/Skills';
 import ExperienceForm from '../Form/Experience';
 import { CVData, PersonalInfo } from '../../types/cv.types';
 import { useToast } from '../../hooks/useToast'; // Import useToast
+import { Button } from '../UI/Button';
+import { Plus, Save, FolderOpen, Download, Upload } from "lucide-react";
+
 
 interface FormSectionProps {
     cvData: CVData;
@@ -50,7 +53,7 @@ const FormSection: React.FC<FormSectionProps> = ({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `cv_data_${cvData.personalInfo.name.replace(/\s+/g, '_') || 'untitled'}.json`;
+      a.download = `cv_data_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'untitled'}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -115,30 +118,22 @@ const FormSection: React.FC<FormSectionProps> = ({
       
       {/* CV Management Buttons */}
       <div className="flex flex-wrap gap-4 mb-8">
-        <button
-          onClick={handleNewCV}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
+        <Button variant="primary" onClick={handleNewCV}>
           Novo CV
-        </button>
-        <button
-          onClick={handleSaveCurrentCV}
-          className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-        >
-          Salvar CV {currentCVName ? `(${currentCVName})` : ''}
-        </button>
-        <button
-          onClick={() => setShowLoadModal(true)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-        >
+        </Button>
+
+        <Button variant="secondary" onClick={handleSaveCurrentCV}>
+          {currentCVName ? `Salvar CV (${currentCVName})` : "Salvar CV"}
+        </Button>
+
+        <Button variant="outline" onClick={() => setShowLoadModal(true)}>
           Carregar/Excluir CV
-        </button>
-        <button
-          onClick={handleExportJson}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-        >
+        </Button>
+
+        <Button variant="outline" onClick={handleExportJson}>
           Exportar JSON
-        </button>
+        </Button>
+
         <input
           type="file"
           ref={fileInputRef}
@@ -146,50 +141,69 @@ const FormSection: React.FC<FormSectionProps> = ({
           accept=".json"
           className="hidden"
         />
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-        >
+        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
           Importar JSON
-        </button>
+        </Button>
+
       </div>
 
       {/* Load/Delete CV Modal */}
       {showLoadModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96">
-            <h2 className="text-xl font-bold mb-4">Carregar/Excluir CV</h2>
+          <div
+            className="bg-white p-6 rounded-lg shadow-xl w-96"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="loadcv-title"
+          >
+            <h2 id="loadcv-title" className="text-xl font-bold mb-4">
+              Carregar/Excluir CV
+            </h2>
+
             {savedCVs.length === 0 ? (
               <p>Nenhum CV salvo ainda.</p>
             ) : (
               <ul className="space-y-2">
                 {savedCVs.map((name) => (
                   <li key={name} className="flex justify-between items-center p-2 border rounded-md">
-                    <span className="font-medium">{name} {name === currentCVName && '(Atual)'}</span>
-                    <div>
-                      <button
-                        onClick={() => { loadCV(name); setShowLoadModal(false); showToast(`CV "${name}" carregado!`, 'success'); }}
-                        className="ml-2 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-                      >
-                        Carregar
-                      </button>
-                      <button
-                        onClick={() => { if (window.confirm(`Tem certeza que deseja excluir "${name}"?`)) { deleteCV(name); showToast(`CV "${name}" excluído!`, 'info'); } }}
-                        className="ml-2 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </li>
+                    <span className="font-medium">
+                      {name} {name === currentCVName && '(Atual)'}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => {
+                        loadCV(name);
+                        setShowLoadModal(false);
+                        showToast(`CV "${name}" carregado!`, 'success');
+                      }}
+                    >
+                      Carregar
+                    </Button>
+
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        if (window.confirm(`Tem certeza que deseja excluir "${name}"?`)) {
+                          deleteCV(name);
+                          showToast(`CV "${name}" excluído!`, 'info');
+                        }
+                      }}
+                    >
+                      Excluir
+                  </Button>
+                </div>
+              </li>
+
                 ))}
               </ul>
             )}
-            <button
-              onClick={() => setShowLoadModal(false)}
-              className="mt-6 px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-            >
+            <Button variant="outline" className="mt-6" onClick={() => setShowLoadModal(false)}>
               Fechar
-            </button>
+            </Button>
+
           </div>
         </div>
       )}
