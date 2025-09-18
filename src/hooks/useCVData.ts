@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { CVData, Skill, Experience, SkillLevel, PersonalInfo } from '../types/cv.types';
+import { CVData, Skill, ExperienceEntry, SkillLevel, PersonalInfo, EducationEntry } from '../types/cv.types';
 
 const CV_NAMES_KEY = 'cvBuilderNames';
 const CURRENT_CV_KEY = 'currentCVName'; // To remember which CV was last loaded
@@ -14,6 +14,7 @@ const initialCVData: CVData = {
   summary: '',
   skills: [],
   experiences: [],
+  education: [],
 };
 
 // Helper to get all saved CV names
@@ -101,6 +102,7 @@ export const useCVData = () => {
           },
           skills: parsedData.skills || [],
           experiences: parsedData.experiences || [],
+          education: parsedData.education || [],
         };
 
         setCvData(mergedData);
@@ -150,7 +152,7 @@ export const useCVData = () => {
     });
   }, [recordChange]);
 
-  const handleListChange = useCallback((listName: 'skills' | 'experiences', id: string, key: string, value: string | boolean) => {
+  const handleListChange = useCallback((listName: 'skills' | 'experiences' | 'education', id: string, key: string, value: string | boolean) => {
     setCvData(prevData => {
       const list = (prevData[listName] as Array<any>).map(item =>
         item.id === id ? { ...item, [key]: value } : item
@@ -161,10 +163,15 @@ export const useCVData = () => {
     });
   }, [recordChange]);
 
-  const handleAddListItem = useCallback((listName: 'skills' | 'experiences') => {
-    const newItem = listName === 'skills'
-      ? { id: crypto.randomUUID(), name: '', level: 'Básico' as SkillLevel }
-      : { id: crypto.randomUUID(), company: '', position: '', period: '', description: '', isCurrent: false };
+  const handleAddListItem = useCallback((listName: 'skills' | 'experiences' | 'education') => {
+    let newItem: Skill | ExperienceEntry | EducationEntry;
+    if (listName === 'skills') {
+      newItem = { id: crypto.randomUUID(), name: '', level: 'Básico' as SkillLevel };
+    } else if (listName === 'experiences') {
+      newItem = { id: crypto.randomUUID(), title: '', company: '', startDate: '', endDate: '', description: '' };
+    } else {
+      newItem = { id: crypto.randomUUID(), degree: '', institution: '', startDate: '', endDate: '', description: '' };
+    }
     
     setCvData(prevData => {
       const newData = {
@@ -176,7 +183,7 @@ export const useCVData = () => {
     });
   }, [recordChange]);
 
-  const handleRemoveListItem = useCallback((listName: 'skills' | 'experiences', id: string) => {
+  const handleRemoveListItem = useCallback((listName: 'skills' | 'experiences' | 'education', id: string) => {
     setCvData(prevData => {
       const newData = {
         ...prevData,

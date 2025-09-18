@@ -15,7 +15,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
         {skills.map((skill, index) => (
           <li key={index} className="text-base text-[var(--cv-text-color)] mb-2 break-inside-avoid">
             <span className="font-semibold">{skill.name}</span>
-            {skill.level && <span className="text-gray-600"> - {skill.level}</span>}
+            {skill.level && <span className="text-[var(--cv-text-color)]"> - {skill.level}</span>}
           </li>
         ))}
       </ul>

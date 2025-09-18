@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { enhanceText } from '../services/aiService';
-import { CVData, Experience } from '../types/cv.types';
+import { CVData, ExperienceEntry } from '../types/cv.types';
 
 const getSystemPrompt = (context: 'summary' | 'experience'): string => {
   switch (context) {
@@ -47,7 +47,7 @@ export const useAIEnhancement = (
       } else if (id) {
         setCVDataDirectly({
           ...currentCvData,
-          experiences: currentCvData.experiences.map((exp: Experience) =>
+          experiences: currentCvData.experiences.map((exp: ExperienceEntry) =>
             exp.id === id ? { ...exp, description: improvedText } : exp
           ),
         });

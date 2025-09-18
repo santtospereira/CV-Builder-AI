@@ -3,15 +3,16 @@ import PersonalInfoForm from '../Form/PersonalInfo';
 import SummaryForm from '../Form/SummaryForm';
 import SkillsForm from '../Form/Skills';
 import ExperienceForm from '../Form/Experience';
+import EducationForm from '../Form/Education'; // Import EducationForm
 import { CVData, PersonalInfo } from '../../types/cv.types';
 import { useToast } from '../../hooks/useToast'; // Import useToast
 
 interface FormSectionProps {
     cvData: CVData;
         handleDataChange: (key: keyof PersonalInfo | 'summary', value: string) => void;
-    handleListChange: (listName: 'skills' | 'experiences', id: string, key: string, value: string | boolean) => void;
-    handleAddListItem: (listName: 'skills' | 'experiences') => void;
-    handleRemoveListItem: (listName: 'skills' | 'experiences', id: string) => void;
+    handleListChange: (listName: 'skills' | 'experiences' | 'education', id: string, key: string, value: string | boolean) => void;
+    handleAddListItem: (listName: 'skills' | 'experiences' | 'education') => void;
+    handleRemoveListItem: (listName: 'skills' | 'experiences' | 'education', id: string) => void;
     ai: {
         isEnhancing: boolean;
         enhancingId: string | null;
@@ -91,6 +92,7 @@ const FormSection: React.FC<FormSectionProps> = ({
         summary: '',
         skills: [],
         experiences: [],
+        education: [],
       });
       showToast('Novo CV criado!', 'info');
     }
@@ -201,6 +203,12 @@ const FormSection: React.FC<FormSectionProps> = ({
           onUpdate={(value) => handleDataChange('summary', value)}
           onEnhance={() => ai.handleEnhance(cvData.summary, 'summary')}
           isEnhancing={ai.isEnhancing && ai.enhancingId === null}
+        />
+        <EducationForm
+          education={cvData.education}
+          onAdd={() => handleAddListItem('education')}
+          onRemove={(id) => handleRemoveListItem('education', id)}
+          onUpdate={(id, key, value) => handleListChange('education', id, key, value)}
         />
         <SkillsForm
           skills={cvData.skills}

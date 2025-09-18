@@ -33,7 +33,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences }) =>
         {experiences.map((exp, index) => (
           <div key={index}> 
             <h3 className="text-lg font-semibold text-[var(--cv-text-color)]">{exp.position || 'Cargo'}</h3>
-            <p className="text-sm text-gray-600">{exp.company || 'Empresa'} | {exp.period || 'Período'}</p>
+            <p className="text-sm text-[var(--cv-text-color)]">{exp.company || 'Empresa'} | {exp.period || 'Período'}</p>
             {renderDescription(exp.description || 'Descrição da experiência')}
           </div>
         ))}

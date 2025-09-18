@@ -22,9 +22,28 @@ export interface PersonalInfo {
   linkedin: string;
 }
 
+export interface ExperienceEntry {
+  id: string;
+  title: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+export interface EducationEntry {
+  id: string;
+  degree: string;
+  institution: string;
+  startDate: string;
+  endDate: string;
+  description?: string;
+}
+
 export interface CVData {
   personalInfo: PersonalInfo;
   summary: string;
   skills: Skill[];
-  experiences: Experience[];
+  experiences: ExperienceEntry[];
+  education: EducationEntry[];
 }

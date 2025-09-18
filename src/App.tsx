@@ -1,15 +1,16 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import FormSection from './components/Layout/FormSection';
-import PreviewSection from './components/Layout/PreviewSection';
-import Toast from './components/UI/Toast';
-import ErrorBoundary from './components/UI/ErrorBoundary';
-import ThemeSwitcher from './components/UI/ThemeSwitcher';
-import { useCVData } from './hooks/useCVData';
-import { useAIEnhancement } from './hooks/useAIEnhancement';
-import { useToast } from './hooks/useToast';
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { exportToPdf } from './services/pdfService';
-import { CVData } from './types/cv.types';
+import React, { useState, useCallback, useEffect } from "react";
+import FormSection from "./components/Layout/FormSection";
+import PreviewSection from "./components/Layout/PreviewSection";
+import Toast from "./components/UI/Toast";
+import ErrorBoundary from "./components/UI/ErrorBoundary";
+import { useCVData } from "./hooks/useCVData";
+import { useAIEnhancement } from "./hooks/useAIEnhancement";
+import { useToast } from "./hooks/useToast";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { exportToPdf } from "./services/pdfService";
+import { CVData } from "./types/cv.types";
+
+type Theme = 'default' | 'dark' | 'grey' | 'blue';
 
 const App: React.FC = () => {
   const { toast, showToast } = useToast();
@@ -30,37 +31,50 @@ const App: React.FC = () => {
     canUndo,
     canRedo,
   } = useCVData();
-  
+
   const ai = useAIEnhancement(cvData, setCVDataDirectly, showToast);
 
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);
-  const [exportRequest, setExportRequest] = useState<{ data: CVData; fileName: string } | null>(null);
+  const [exportRequest, setExportRequest] = useState<{
+    data: CVData;
+    fileName: string;
+  } | null>(null);
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => {
+    const savedTheme = localStorage.getItem('cvBuilderTheme');
+    return (savedTheme as Theme) || 'default';
+  });
 
-  // Função para solicitar a exportação, apenas define o estado
+  useEffect(() => {
+    localStorage.setItem('cvBuilderTheme', currentTheme);
+  }, [currentTheme]);
+
+  const handleThemeChange = (theme: Theme) => {
+    setCurrentTheme(theme);
+  };
+
   const requestExport = async (data: CVData, fileName: string) => {
     if (!isExportingPdf) {
       setExportRequest({ data, fileName });
     }
   };
 
-  // useEffect para lidar com a exportação quando o estado de requisição muda
   useEffect(() => {
     if (exportRequest) {
       const { data, fileName } = exportRequest;
-      
+
       setIsExportingPdf(true);
-      showToast('Gerando PDF...', 'info');
+      showToast("Gerando PDF...", "info");
 
       // Usamos um timeout para garantir que o DOM foi atualizado
       const timer = setTimeout(() => {
         exportToPdf(data, fileName)
           .then(() => {
-            showToast('PDF gerado com sucesso!', 'success');
+            showToast("PDF gerado com sucesso!", "success");
           })
           .catch((error) => {
             console.error(error);
-            showToast('Falha ao gerar o PDF.', 'error');
+            showToast("Falha ao gerar o PDF.", "error");
           })
           .finally(() => {
             setIsExportingPdf(false);
@@ -73,44 +87,83 @@ const App: React.FC = () => {
   }, [exportRequest, showToast]);
 
   useKeyboardShortcuts({
-    'control+p': (event) => {
+    "control+p": (event) => {
       event.preventDefault();
-      requestExport(cvData, `CV_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'Candidato'}`);
+      requestExport(
+        cvData,
+        `CV_${cvData.personalInfo.name?.replace(/\s+/g, "_") || "Candidato"}`
+      );
     },
-    'meta+p': (event) => {
+    "meta+p": (event) => {
       event.preventDefault();
-      requestExport(cvData, `CV_${cvData.personalInfo.name?.replace(/\s+/g, '_') || 'Candidato'}`);
+      requestExport(
+        cvData,
+        `CV_${cvData.personalInfo.name?.replace(/\s+/g, "_") || "Candidato"}`
+      );
     },
-    'control+f': () => setIsFullScreenPreview(prev => !prev),
-    'meta+f': () => setIsFullScreenPreview(prev => !prev),
-    'control+z': undo,
-    'meta+z': undo,
-    'control+y': redo,
-    'meta+y': redo,
-    'control+shift+z': redo,
-    'meta+shift+z': redo,
+    "control+f": () => setIsFullScreenPreview((prev) => !prev),
+    "meta+f": () => setIsFullScreenPreview((prev) => !prev),
+    "control+z": undo,
+    "meta+z": undo,
+    "control+y": redo,
+    "meta+y": redo,
+    "control+shift+z": redo,
+    "meta+shift+z": redo,
   });
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col h-screen bg-gray-200 font-sans text-gray-800 antialiased">
-        <header className="bg-white shadow-md p-4 z-20">
+      <div className="flex flex-col h-screen bg-gray-200 font-sans text-gray-800 antialiased transition-colors duration-300">
+        <header className="bg-white shadow-md p-4 z-20 transition-colors duration-300">
           <div className="container mx-auto flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">CV Builder IA</h1>
-            <div className="flex items-center space-x-4">
-              <ThemeSwitcher />
+            <h1 className="text-2xl font-bold text-gray-800">
+              CV Builder IA
+            </h1>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Theme Switcher */}
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleThemeChange('default')}
+                  className={`px-3 py-1 text-sm font-medium rounded-md ${currentTheme === 'default' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800'}`}
+                >
+                  Default
+                </button>
+                <button
+                  onClick={() => handleThemeChange('dark')}
+                  className={`px-3 py-1 text-sm font-medium rounded-md ${currentTheme === 'dark' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800'}`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => handleThemeChange('grey')}
+                  className={`px-3 py-1 text-sm font-medium rounded-md ${currentTheme === 'grey' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800'}`}
+                >
+                  Grey
+                </button>
+                <button
+                  onClick={() => handleThemeChange('blue')}
+                  className={`px-3 py-1 text-sm font-medium rounded-md ${currentTheme === 'blue' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800'}`}
+                >
+                  Blue
+                </button>
+              </div>
+
               <button
-                onClick={() => setIsFullScreenPreview(prev => !prev)}
+                onClick={() => setIsFullScreenPreview((prev) => !prev)}
                 className="px-3 py-1 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-md transition-colors duration-200"
-                title={isFullScreenPreview ? 'Sair do modo tela cheia' : 'Entrar no modo tela cheia'}
+                title={
+                  isFullScreenPreview
+                    ? "Sair do modo tela cheia"
+                    : "Entrar no modo tela cheia"
+                }
               >
-                {isFullScreenPreview ? 'Sair da Tela Cheia' : 'Tela Cheia'}
+                {isFullScreenPreview ? "Sair da Tela Cheia" : "Tela Cheia"}
               </button>
               {/* Undo/Redo Buttons */}
               <button
                 onClick={undo}
                 disabled={!canUndo}
-                className="px-3 py-1 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-md transition-colors duration-200 disabled:bg-gray-400"
+                className="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 disabled:bg-gray-400"
                 title="Desfazer (Ctrl+Z)"
               >
                 Desfazer
@@ -118,7 +171,7 @@ const App: React.FC = () => {
               <button
                 onClick={redo}
                 disabled={!canRedo}
-                className="px-3 py-1 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-md transition-colors duration-200 disabled:bg-gray-400"
+                className="px-3 py-1 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors duration-200 disabled:bg-gray-400"
                 title="Refazer (Ctrl+Y ou Ctrl+Shift+Z)"
               >
                 Refazer
@@ -126,29 +179,30 @@ const App: React.FC = () => {
             </div>
           </div>
         </header>
-        
+
         <main className="flex flex-grow overflow-hidden">
           {!isFullScreenPreview && (
-            <FormSection 
-                cvData={cvData}
-                handleDataChange={handleDataChange}
-                handleListChange={handleListChange}
-                handleAddListItem={handleAddListItem}
-                handleRemoveListItem={handleRemoveListItem}
-                ai={ai}
-                setCVDataDirectly={setCVDataDirectly}
-                saveCV={saveCV}
-                loadCV={loadCV}
-                deleteCV={deleteCV}
-                savedCVs={savedCVs}
-                currentCVName={currentCVName}
+            <FormSection
+              cvData={cvData}
+              handleDataChange={handleDataChange}
+              handleListChange={handleListChange}
+              handleAddListItem={handleAddListItem}
+              handleRemoveListItem={handleRemoveListItem}
+              ai={ai}
+              setCVDataDirectly={setCVDataDirectly}
+              saveCV={saveCV}
+              loadCV={loadCV}
+              deleteCV={deleteCV}
+              savedCVs={savedCVs}
+              currentCVName={currentCVName}
             />
           )}
-          <PreviewSection 
-            cvData={cvData} 
-            onExportPdf={requestExport} 
-            isExportingPdf={isExportingPdf} 
-            className={isFullScreenPreview ? 'w-full' : 'w-1/2'} 
+          <PreviewSection
+            cvData={cvData}
+            onExportPdf={requestExport}
+            isExportingPdf={isExportingPdf}
+            className={isFullScreenPreview ? "w-full" : "w-1/2"}
+            theme={currentTheme} // Pass theme to PreviewSection
           />
         </main>
 
